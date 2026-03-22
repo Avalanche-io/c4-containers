@@ -1,0 +1,52 @@
+# Standalone materializer — hydrate a directory from a c4m manifest.
+#
+# Use as an init container or standalone job to ensure data is present
+# before a workload starts. The pre-flight check guarantees all content
+# is available before any files are written.
+#
+# Exit codes:
+#   0 — directory matches manifest (already materialized or successfully reconciled)
+#   1 — missing content (nothing was modified)
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: materialize-dataset
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dataset
+        - name: manifest
+          configMap:
+            name: dataset-manifest
+
+      containers:
+        - name: materialize
+          image: avalancheio/c4:latest
+          command: ["patch"]
+          args:
+            - /manifest/dataset.c4m
+            - /data/
+          volumeMounts:
+            - name: manifest
+              mountPath: /manifest
+              readOnly: true
+            - name: data
+              mountPath: /data
+          env:
+            - name: C4_STORE
+              value: s3://datasets/c4?region=us-west-2
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: secret-access-key

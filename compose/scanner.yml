@@ -1,0 +1,22 @@
+# Scan a directory and produce a c4m manifest with content stored.
+#
+# Usage:
+#   C4_INPUT=/path/to/scan docker compose -f scanner.yml up
+#
+# Output:
+#   ./output/manifest.c4m — the c4m description of the scanned directory
+#   c4store volume — content stored by C4 ID for retrieval
+
+services:
+  scan:
+    image: avalancheio/c4:latest
+    command: ["patch", "-s", "/input/", "/output/manifest.c4m"]
+    volumes:
+      - ${C4_INPUT:-.}:/input:ro
+      - ./output:/output
+      - c4store:/store
+    environment:
+      - C4_STORE=/store
+
+volumes:
+  c4store:

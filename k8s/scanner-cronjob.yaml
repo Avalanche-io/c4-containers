@@ -1,0 +1,55 @@
+# Periodic directory scanner — produces c4m snapshots on a schedule.
+#
+# Scans a PersistentVolume and writes timestamped c4m manifests.
+# Useful for change detection, backup verification, and audit trails.
+#
+# The diff between consecutive snapshots shows exactly what changed:
+#   c4 diff snapshot-20260318.c4m snapshot-20260319.c4m
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: c4-scanner
+spec:
+  schedule: "0 2 * * *"  # Daily at 2am
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: shared-data
+            - name: snapshots
+              persistentVolumeClaim:
+                claimName: c4-snapshots
+
+          containers:
+            - name: scan
+              image: avalancheio/c4:latest
+              command: ["sh", "-c"]
+              args:
+                - |
+                  TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+                  /c4 id -s /data > /snapshots/snapshot-${TIMESTAMP}.c4m
+                  echo "Snapshot: snapshot-${TIMESTAMP}.c4m" >&2
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+                  readOnly: true
+                - name: snapshots
+                  mountPath: /snapshots
+              env:
+                - name: C4_STORE
+                  value: s3://backups/c4?region=us-west-2
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-credentials
+                      key: access-key-id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-credentials
+                      key: secret-access-key

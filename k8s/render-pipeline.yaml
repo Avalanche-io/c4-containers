@@ -1,0 +1,113 @@
+# Render pipeline with C4 asset materialization and output capture.
+#
+# This Job demonstrates the full render workflow:
+#   1. Init container materializes assets from S3 store to shared volume
+#   2. Render container processes the assets
+#   3. Sidecar captures render output to S3 store and produces a c4m
+#
+# The c4m manifest is the contract between stages:
+#   - Input assets are defined by assets.c4m (checked into source control)
+#   - Output is captured as output.c4m (build artifact)
+#   - Both are small text files; actual content lives in the S3 store
+#
+# Prerequisites:
+#   - ConfigMap "render-config" with assets.c4m
+#   - Secret "s3-credentials" with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+#   - The S3 store contains all content referenced by assets.c4m
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: render-shot-010
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      volumes:
+        - name: assets
+          emptyDir: {}
+        - name: output
+          emptyDir: {}
+        - name: artifacts
+          emptyDir: {}
+        - name: render-config
+          configMap:
+            name: render-config
+
+      initContainers:
+        # Stage 1: Materialize assets from store.
+        # Exits 0 only if all content is available and materialized.
+        # If any content is missing, the job fails here — render never starts.
+        - name: materialize-assets
+          image: avalancheio/c4:latest
+          command: ["patch"]
+          args:
+            - /config/assets.c4m
+            - /assets/
+          volumeMounts:
+            - name: render-config
+              mountPath: /config
+              readOnly: true
+            - name: assets
+              mountPath: /assets
+          env:
+            - name: C4_STORE
+              value: s3://render-store/assets?region=us-west-2
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: secret-access-key
+
+      containers:
+        # Stage 2: The actual render.
+        - name: render
+          image: render-engine:latest
+          command: ["/render"]
+          args:
+            - --input=/assets/
+            - --output=/output/
+          volumeMounts:
+            - name: assets
+              mountPath: /assets
+              readOnly: true
+            - name: output
+              mountPath: /output
+
+        # Stage 3: Capture render output.
+        # Waits for render to finish (shared process namespace),
+        # then scans output and stores to S3.
+        - name: capture-output
+          image: avalancheio/c4:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              # Wait for render output to appear
+              while [ ! -f /output/.done ]; do sleep 1; done
+              # Capture: scan output, store content, write c4m
+              /c4 patch -s /output/ /artifacts/output.c4m
+          volumeMounts:
+            - name: output
+              mountPath: /output
+              readOnly: true
+            - name: artifacts
+              mountPath: /artifacts
+          env:
+            - name: C4_STORE
+              value: s3://render-store/output?region=us-west-2
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: secret-access-key

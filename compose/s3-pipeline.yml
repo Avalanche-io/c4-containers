@@ -1,0 +1,45 @@
+# Full pipeline: scan, store to S3, verify, materialize elsewhere.
+#
+# Usage:
+#   Copy .env.example to .env, fill in credentials, then:
+#   docker compose -f s3-pipeline.yml run scan
+#   docker compose -f s3-pipeline.yml run materialize
+#
+# This demonstrates the core c4 workflow:
+#   1. Scan a directory → c4m + content stored to S3
+#   2. Ship the c4m anywhere (it's a small text file)
+#   3. Materialize from S3 at the destination
+
+services:
+  scan:
+    image: avalancheio/c4:latest
+    command: ["patch", "-s", "/input/", "/output/manifest.c4m"]
+    volumes:
+      - ${C4_INPUT:-.}:/input:ro
+      - ./output:/output
+    environment:
+      - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+
+  materialize:
+    image: avalancheio/c4:latest
+    command: ["patch", "/manifest/manifest.c4m", "/output/"]
+    volumes:
+      - ./output:/manifest:ro
+      - ${C4_OUTPUT:-./materialized}:/output
+    environment:
+      - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+
+  verify:
+    image: avalancheio/c4:latest
+    command: ["diff", "/manifest/manifest.c4m", "/output/"]
+    volumes:
+      - ./output:/manifest:ro
+      - ${C4_OUTPUT:-./materialized}:/output:ro
+    environment:
+      - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
