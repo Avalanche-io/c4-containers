@@ -3,7 +3,7 @@
 # Scans an S3 bucket and produces a c4m manifest of its contents.
 # Uses the AWS CLI for listing and c4 for identification.
 
-ARG C4_VERSION=v1.0.6
+ARG C4_VERSION=v1.0.10
 
 FROM golang:1.24-alpine AS build
 ARG C4_VERSION
