@@ -3,7 +3,7 @@
 # Includes: c4, git, curl, jq, ffprobe, bash
 # Use for: build verification, media asset scanning, pipeline automation
 
-ARG C4_VERSION=v1.0.11
+ARG C4_VERSION=v1.0.12
 
 FROM golang:1.24-alpine AS build
 ARG C4_VERSION
