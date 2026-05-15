@@ -1,9 +1,9 @@
 # Minimal c4 CLI image — scratch base, static binary, certs, tzdata.
 #
 # Build:
-#   docker build --build-arg C4_VERSION=v1.0.12 -t avalancheio/c4:1.0.12 c4/
+#   docker build --build-arg C4_VERSION=v1.0.13 -t avalancheio/c4:1.0.13 c4/
 
-ARG C4_VERSION=v1.0.12
+ARG C4_VERSION=v1.0.13
 
 FROM golang:1.24-alpine AS build
 ARG C4_VERSION

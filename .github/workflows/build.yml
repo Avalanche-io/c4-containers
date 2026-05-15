@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  C4_VERSION: "v1.0.12"
+  C4_VERSION: "v1.0.13"
 
 jobs:
   build-c4:
