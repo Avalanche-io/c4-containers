@@ -106,8 +106,8 @@ Hydrate a PersistentVolume from a c4m manifest. Pre-flight check ensures all con
 ## Building
 
 ```bash
-# From release binary (default: v1.0.15)
-docker build --build-arg C4_VERSION=1.0.15 -t avalancheio/c4:1.0.15 c4/
+# From release binary (default: v1.0.16)
+docker build --build-arg C4_VERSION=1.0.16 -t avalancheio/c4:1.0.16 c4/
 
 # From source (run from the c4 repo root)
 docker build -f c4-containers/c4/Dockerfile.build -t avalancheio/c4 .
