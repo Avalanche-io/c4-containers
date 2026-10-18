@@ -29,6 +29,8 @@ trap 'rm -rf "$WORKDIR"' EXIT
 AWS_FLAGS="--region $S3_REGION"
 if [ -n "${S3_ENDPOINT:-}" ]; then
     AWS_FLAGS="$AWS_FLAGS --endpoint-url $S3_ENDPOINT"
+    # c4 reads the endpoint from C4_S3_ENDPOINT, not S3_ENDPOINT.
+    export C4_S3_ENDPOINT="${C4_S3_ENDPOINT:-$S3_ENDPOINT}"
 fi
 
 echo "Scanning s3://${S3_BUCKET}/${S3_PREFIX}" >&2

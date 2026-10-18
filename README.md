@@ -115,15 +115,18 @@ docker build -f c4-containers/c4/Dockerfile.build -t avalancheio/c4 .
 
 ## S3-Compatible Stores
 
-All images support any S3-compatible object store:
+All images support any S3-compatible object store. The `c4` binary reads
+the endpoint from `C4_S3_ENDPOINT` (with `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY` for credentials). The `c4-s3worker` image also
+accepts `S3_ENDPOINT` for its `aws s3 sync` step and passes it on to c4.
 
-| Provider | Endpoint |
-|----------|----------|
-| AWS S3 | (default, no endpoint needed) |
-| MinIO | `S3_ENDPOINT=http://minio.local:9000` |
-| Backblaze B2 | `S3_ENDPOINT=https://s3.us-west-002.backblazeb2.com` |
-| Wasabi | `S3_ENDPOINT=https://s3.wasabisys.com` |
-| Ceph RGW | `S3_ENDPOINT=http://ceph-rgw.local` |
+| Provider     | Endpoint                                                   |
+|--------------|------------------------------------------------------------|
+| AWS S3       | (default, no endpoint needed)                              |
+| MinIO        | `C4_S3_ENDPOINT=http://minio.local:9000`                   |
+| Backblaze B2 | `C4_S3_ENDPOINT=https://s3.us-west-002.backblazeb2.com`    |
+| Wasabi       | `C4_S3_ENDPOINT=https://s3.wasabisys.com`                  |
+| Ceph RGW     | `C4_S3_ENDPOINT=http://ceph-rgw.local`                     |
 
 ## License
 
