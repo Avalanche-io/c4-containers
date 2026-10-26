@@ -106,8 +106,8 @@ Hydrate a PersistentVolume from a c4m manifest. Pre-flight check ensures all con
 ## Building
 
 ```bash
-# From release binary (default: v1.0.19)
-docker build --build-arg C4_VERSION=1.0.19 -t avalancheio/c4:1.0.19 c4/
+# From release binary (default: v1.0.20)
+docker build --build-arg C4_VERSION=1.0.20 -t avalancheio/c4:1.0.20 c4/
 
 # From source (run from the c4 repo root)
 docker build -f c4-containers/c4/Dockerfile.build -t avalancheio/c4 .
@@ -120,13 +120,13 @@ the endpoint from `C4_S3_ENDPOINT` (with `AWS_ACCESS_KEY_ID` and
 `AWS_SECRET_ACCESS_KEY` for credentials). The `c4-s3worker` image also
 accepts `S3_ENDPOINT` for its `aws s3 sync` step and passes it on to c4.
 
-| Provider     | Endpoint                                                   |
-|--------------|------------------------------------------------------------|
-| AWS S3       | (default, no endpoint needed)                              |
-| MinIO        | `C4_S3_ENDPOINT=http://minio.local:9000`                   |
-| Backblaze B2 | `C4_S3_ENDPOINT=https://s3.us-west-002.backblazeb2.com`    |
-| Wasabi       | `C4_S3_ENDPOINT=https://s3.wasabisys.com`                  |
-| Ceph RGW     | `C4_S3_ENDPOINT=http://ceph-rgw.local`                     |
+| Provider     | Endpoint                                                |
+| ------------ | ------------------------------------------------------- |
+| AWS S3       | (default, no endpoint needed)                           |
+| MinIO        | `C4_S3_ENDPOINT=http://minio.local:9000`                |
+| Backblaze B2 | `C4_S3_ENDPOINT=https://s3.us-west-002.backblazeb2.com` |
+| Wasabi       | `C4_S3_ENDPOINT=https://s3.wasabisys.com`               |
+| Ceph RGW     | `C4_S3_ENDPOINT=http://ceph-rgw.local`                  |
 
 ## License
 
