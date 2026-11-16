@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [main]
 
+# A push to main pushes :latest only. A version tag (:vX.Y.Z) is pushed only
+# on a tag event: a published version tag never moves, so a rebuild from main
+# must not re-push it with a new digest. On a push to main the versioned
+# tag line is empty, and build-push-action drops empty lines.
 env:
   REGISTRY: ghcr.io
   C4_VERSION: "v1.0.26"
@@ -39,7 +43,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/avalanche-io/c4:latest
-            ${{ env.REGISTRY }}/avalanche-io/c4:${{ env.C4_VERSION }}
+            ${{ github.ref_type == 'tag' && format('{0}/avalanche-io/c4:{1}', env.REGISTRY, env.C4_VERSION) || '' }}
           build-args: |
             C4_VERSION=${{ env.C4_VERSION }}
           platforms: linux/amd64,linux/arm64
@@ -71,7 +75,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/avalanche-io/c4-pipeline:latest
-            ${{ env.REGISTRY }}/avalanche-io/c4-pipeline:${{ env.C4_VERSION }}
+            ${{ github.ref_type == 'tag' && format('{0}/avalanche-io/c4-pipeline:{1}', env.REGISTRY, env.C4_VERSION) || '' }}
           build-args: |
             C4_VERSION=${{ env.C4_VERSION }}
 
@@ -102,6 +106,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/avalanche-io/c4-s3worker:latest
-            ${{ env.REGISTRY }}/avalanche-io/c4-s3worker:${{ env.C4_VERSION }}
+            ${{ github.ref_type == 'tag' && format('{0}/avalanche-io/c4-s3worker:{1}', env.REGISTRY, env.C4_VERSION) || '' }}
           build-args: |
             C4_VERSION=${{ env.C4_VERSION }}
