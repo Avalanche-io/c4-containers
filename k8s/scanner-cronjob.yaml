@@ -27,7 +27,7 @@ spec:
 
           containers:
             - name: scan
-              image: avalancheio/c4:latest
+              image: ghcr.io/avalanche-io/c4:latest
               command: ["sh", "-c"]
               args:
                 - |

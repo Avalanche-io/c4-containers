@@ -9,7 +9,7 @@
 
 services:
   scan:
-    image: avalancheio/c4:latest
+    image: ghcr.io/avalanche-io/c4:latest
     command: ["patch", "-s", "/input/", "/output/manifest.c4m"]
     volumes:
       - ${C4_INPUT:-.}:/input:ro

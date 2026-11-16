@@ -12,7 +12,7 @@
 
 services:
   scan:
-    image: avalancheio/c4:latest
+    image: ghcr.io/avalanche-io/c4:latest
     command: ["patch", "-s", "/input/", "/output/manifest.c4m"]
     volumes:
       - ${C4_INPUT:-.}:/input:ro
@@ -23,7 +23,7 @@ services:
       - AWS_SECRET_ACCESS_KEY
 
   materialize:
-    image: avalancheio/c4:latest
+    image: ghcr.io/avalanche-io/c4:latest
     command: ["patch", "/manifest/manifest.c4m", "/output/"]
     volumes:
       - ./output:/manifest:ro
@@ -34,7 +34,7 @@ services:
       - AWS_SECRET_ACCESS_KEY
 
   verify:
-    image: avalancheio/c4:latest
+    image: ghcr.io/avalanche-io/c4:latest
     command: ["diff", "/manifest/manifest.c4m", "/output/"]
     volumes:
       - ./output:/manifest:ro
