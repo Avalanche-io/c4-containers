@@ -27,12 +27,14 @@ spec:
 
           containers:
             - name: scan
-              image: ghcr.io/avalanche-io/c4:latest
+              # c4-pipeline, not c4: the script needs a shell and date, and
+              # the minimal c4 image is scratch with neither.
+              image: ghcr.io/avalanche-io/c4-pipeline:latest
               command: ["sh", "-c"]
               args:
                 - |
                   TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-                  /c4 id -s /data > /snapshots/snapshot-${TIMESTAMP}.c4m
+                  c4 id -s /data > /snapshots/snapshot-${TIMESTAMP}.c4m
                   echo "Snapshot: snapshot-${TIMESTAMP}.c4m" >&2
               volumeMounts:
                 - name: data
