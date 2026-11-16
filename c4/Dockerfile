@@ -1,7 +1,7 @@
 # Minimal c4 CLI image — scratch base, static binary, certs, tzdata.
 #
 # Build:
-#   docker build --build-arg C4_VERSION=v1.0.26 -t avalancheio/c4:1.0.26 c4/
+#   docker build --build-arg C4_VERSION=v1.0.26 -t ghcr.io/avalanche-io/c4:1.0.26 c4/
 
 ARG C4_VERSION=v1.0.26
 

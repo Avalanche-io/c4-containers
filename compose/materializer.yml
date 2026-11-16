@@ -9,7 +9,7 @@
 
 services:
   materialize:
-    image: avalancheio/c4:latest
+    image: ghcr.io/avalanche-io/c4:latest
     command: ["patch", "/manifest/target.c4m", "/output/"]
     volumes:
       - ${C4_MANIFEST:-.}:/manifest:ro

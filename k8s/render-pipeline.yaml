@@ -40,7 +40,7 @@ spec:
         # Exits 0 only if all content is available and materialized.
         # If any content is missing, the job fails here — render never starts.
         - name: materialize-assets
-          image: avalancheio/c4:latest
+          image: ghcr.io/avalanche-io/c4:latest
           command: ["patch"]
           args:
             - /config/assets.c4m
@@ -84,7 +84,7 @@ spec:
         # Waits for render to finish (shared process namespace),
         # then scans output and stores to S3.
         - name: capture-output
-          image: avalancheio/c4:latest
+          image: ghcr.io/avalanche-io/c4:latest
           command: ["sh", "-c"]
           args:
             - |
