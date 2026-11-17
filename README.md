@@ -76,7 +76,7 @@ docker compose -f compose/s3-pipeline.yml run materialize
 docker compose -f compose/s3-pipeline.yml run verify
 ```
 
-Full workflow: scan a directory, store content to S3, ship the c4m file, materialize at the destination, verify the result.
+Full workflow: scan a directory, store content to S3, ship the c4m file, materialize at the destination, then `verify` prints any difference between the c4m and the result (nothing when they match; `c4 diff` exits 0 either way).
 
 ### Materializer — hydrate from stored content
 
@@ -106,11 +106,9 @@ Hydrate a PersistentVolume from a c4m manifest. Pre-flight check ensures all con
 ## Building
 
 ```bash
-# From release binary (default: v1.0.26)
-docker build --build-arg C4_VERSION=1.0.26 -t ghcr.io/avalanche-io/c4:1.0.26 c4/
+# From a release tag (default: v1.0.26)
+docker build --build-arg C4_VERSION=v1.0.26 -t ghcr.io/avalanche-io/c4:1.0.26 c4/
 
-# From source (run from the c4 repo root)
-docker build -f c4-containers/c4/Dockerfile.build -t ghcr.io/avalanche-io/c4 .
 ```
 
 ## S3-Compatible Stores
