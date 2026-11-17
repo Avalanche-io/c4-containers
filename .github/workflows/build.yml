@@ -5,7 +5,7 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
-    branches: [main]
+    branches: [main, 'release/**']
 
 # A push to main pushes :latest only. A version tag (:vX.Y.Z) is pushed only
 # on a tag event: a published version tag never moves, so a rebuild from main
