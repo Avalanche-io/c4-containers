@@ -41,8 +41,10 @@ spec:
         # If any content is missing, the job fails here — render never starts.
         - name: materialize-assets
           image: ghcr.io/avalanche-io/c4:latest
-          command: ["patch"]
+          # args, not command: command would replace the image's /c4
+          # entrypoint, and the scratch image has no patch binary.
           args:
+            - patch
             - /config/assets.c4m
             - /assets/
           volumeMounts:
@@ -84,14 +86,16 @@ spec:
         # Waits for render to finish (shared process namespace),
         # then scans output and stores to S3.
         - name: capture-output
-          image: ghcr.io/avalanche-io/c4:latest
+          # c4-pipeline, not c4: the script needs a shell, and the minimal
+          # c4 image is scratch with none.
+          image: ghcr.io/avalanche-io/c4-pipeline:latest
           command: ["sh", "-c"]
           args:
             - |
               # Wait for render output to appear
               while [ ! -f /output/.done ]; do sleep 1; done
               # Capture: scan output, store content, write c4m
-              /c4 patch -s /output/ /artifacts/output.c4m
+              c4 patch -s /output/ /artifacts/output.c4m
           volumeMounts:
             - name: output
               mountPath: /output

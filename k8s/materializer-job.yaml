@@ -27,8 +27,10 @@ spec:
       containers:
         - name: materialize
           image: ghcr.io/avalanche-io/c4:latest
-          command: ["patch"]
+          # args, not command: command would replace the image's /c4
+          # entrypoint, and the scratch image has no patch binary.
           args:
+            - patch
             - /manifest/dataset.c4m
             - /data/
           volumeMounts:
