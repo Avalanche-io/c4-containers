@@ -93,9 +93,9 @@ C4_MANIFEST=$PWD/target.c4m docker compose -f compose/materializer.yml up
 Full VFX/media render workflow:
 1. **Init container** materializes assets from S3 to shared volume
 2. **Render container** processes assets
-3. **Sidecar** captures output to S3 store + c4m artifact
+3. **Sidecar** captures output to the S3 store and writes `output.c4m`
 
-The c4m manifest is the contract: `assets.c4m` defines inputs (checked into source control), `output.c4m` captures outputs (build artifact). Content lives in S3.
+The c4m manifest is the contract: `assets.c4m` defines inputs (checked into source control), `output.c4m` captures outputs (build artifact). Content lives in S3. The example writes `output.c4m` to an `emptyDir`, which is deleted with the pod; the same c4m is in the S3 store, and `c4 cat` of the ID the sidecar's log prints (`stored: <ID>`) returns it. Mount a PersistentVolumeClaim at `/artifacts` to keep the file.
 
 ### Scanner CronJob (`k8s/scanner-cronjob.yaml`)
 
