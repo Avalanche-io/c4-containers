@@ -7,7 +7,11 @@
 #
 # The c4m manifest is the contract between stages:
 #   - Input assets are defined by assets.c4m (checked into source control)
-#   - Output is captured as output.c4m (build artifact)
+#   - Output is captured as output.c4m (build artifact), written to the
+#     artifacts emptyDir, which is deleted with the pod. The same c4m is
+#     stored in the S3 store: `c4 cat <ID>`, with the ID capture-output's
+#     log prints as "stored: <ID>", returns it. To keep the file itself,
+#     mount a PersistentVolumeClaim at /artifacts.
 #   - Both are small text files; actual content lives in the S3 store
 #
 # Prerequisites:
@@ -83,8 +87,8 @@ spec:
               mountPath: /output
 
         # Stage 3: Capture render output.
-        # Waits for render to finish (shared process namespace),
-        # then scans output and stores to S3.
+        # Waits for the render to write /output/.done, then scans the
+        # output and stores it to S3 (the marker is captured too).
         - name: capture-output
           # c4-pipeline, not c4: the script needs a shell, and the minimal
           # c4 image is scratch with none.
