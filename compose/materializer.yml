@@ -1,18 +1,24 @@
 # Materialize a c4m manifest to a directory using stored content.
 #
 # Usage:
-#   C4_MANIFEST=./target.c4m docker compose -f materializer.yml up
+#   C4_MANIFEST=/path/to/target.c4m docker compose -f materializer.yml up
+#
+# C4_MANIFEST names the c4m file itself; it is mounted at
+# /manifest/target.c4m. Compose takes a relative path from this file's
+# folder, as it does every relative path here, so ./output is the
+# output/ folder beside this file.
 #
 # The target directory will be reconciled to match the manifest.
-# Content is pulled from the store. Missing content causes failure
-# before any changes are made.
+# Content is pulled from the store: the c4store volume, which
+# scanner.yml fills when both run from this folder. Missing content
+# causes failure before any changes are made.
 
 services:
   materialize:
     image: ghcr.io/avalanche-io/c4:latest
     command: ["patch", "/manifest/target.c4m", "/output/"]
     volumes:
-      - ${C4_MANIFEST:-.}:/manifest:ro
+      - ${C4_MANIFEST:?set C4_MANIFEST to the c4m file to materialize}:/manifest/target.c4m:ro
       - ./output:/output
       - c4store:/store
     environment:

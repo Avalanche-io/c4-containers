@@ -4,7 +4,11 @@
 # Useful for change detection, backup verification, and audit trails.
 #
 # The diff between consecutive snapshots shows exactly what changed:
-#   c4 diff snapshot-20260318.c4m snapshot-20260319.c4m
+#   c4 diff snapshot-20260318-020000.c4m snapshot-20260319-020000.c4m
+#
+# The Job fails when c4 id -s does: exit 2 when it recorded a file with
+# nulls, unreadable or not stored (the snapshot is written, but partial),
+# and, from c4 1.0.27, exit 1 when the store fails.
 
 apiVersion: batch/v1
 kind: CronJob
@@ -33,6 +37,10 @@ spec:
               command: ["sh", "-c"]
               args:
                 - |
+                  # set -e: the script exits with c4's status, so a partial
+                  # snapshot (exit 2) or a store failure (exit 1) fails the
+                  # Job instead of ending in the echo's exit 0.
+                  set -e
                   TIMESTAMP=$(date +%Y%m%d-%H%M%S)
                   c4 id -s /data > /snapshots/snapshot-${TIMESTAMP}.c4m
                   echo "Snapshot: snapshot-${TIMESTAMP}.c4m" >&2

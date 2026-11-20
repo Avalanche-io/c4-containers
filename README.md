@@ -64,7 +64,7 @@ docker run \
 C4_INPUT=/path/to/scan docker compose -f compose/scanner.yml up
 ```
 
-Produces `./output/manifest.c4m` with content stored in a Docker volume.
+Produces `compose/output/manifest.c4m`, with content stored in the `c4store` Docker volume. Compose resolves the relative paths in these files from the `compose/` folder.
 
 ### S3 Pipeline — scan, store, materialize
 
@@ -81,8 +81,10 @@ Full workflow: scan a directory, store content to S3, ship the c4m file, materia
 ### Materializer — hydrate from stored content
 
 ```bash
-C4_MANIFEST=./target.c4m docker compose -f compose/materializer.yml up
+C4_MANIFEST=$PWD/target.c4m docker compose -f compose/materializer.yml up
 ```
+
+`C4_MANIFEST` names the c4m file; a relative path is taken from `compose/`. The result lands in `compose/output/`, from the content the scanner stored in the `c4store` volume.
 
 ## Kubernetes Examples
 
@@ -97,7 +99,7 @@ The c4m manifest is the contract: `assets.c4m` defines inputs (checked into sour
 
 ### Scanner CronJob (`k8s/scanner-cronjob.yaml`)
 
-Daily snapshot of a PersistentVolume. Diff consecutive snapshots to see exactly what changed.
+Daily snapshot of a PersistentVolume. Diff consecutive snapshots to see exactly what changed. The Job fails when `c4 id -s` does: exit 2 when a file was recorded with nulls, unreadable or not stored (the snapshot is written, but partial), and, from c4 1.0.27, exit 1 when the store fails.
 
 ### Materializer Job (`k8s/materializer-job.yaml`)
 
@@ -115,7 +117,8 @@ docker build --build-arg C4_VERSION=v1.0.26 -t ghcr.io/avalanche-io/c4:v1.0.26 c
 
 All images support any S3-compatible object store. The `c4` binary reads
 the endpoint from `C4_S3_ENDPOINT` (with `AWS_ACCESS_KEY_ID` and
-`AWS_SECRET_ACCESS_KEY` for credentials). The `c4-s3worker` image also
+`AWS_SECRET_ACCESS_KEY` for credentials); `compose/s3-pipeline.yml` passes
+`C4_S3_ENDPOINT` from `compose/.env` to each c4 container. The `c4-s3worker` image also
 accepts `S3_ENDPOINT` for its `aws s3 sync` step and passes it on to c4.
 
 | Provider     | Endpoint                                                |
