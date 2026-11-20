@@ -21,6 +21,7 @@ services:
       - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - C4_S3_ENDPOINT
 
   materialize:
     image: ghcr.io/avalanche-io/c4:latest
@@ -32,6 +33,7 @@ services:
       - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - C4_S3_ENDPOINT
 
   verify:
     image: ghcr.io/avalanche-io/c4:latest
@@ -43,3 +45,4 @@ services:
       - C4_STORE=s3://${S3_BUCKET}/${S3_PREFIX:-c4}?region=${S3_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - C4_S3_ENDPOINT
